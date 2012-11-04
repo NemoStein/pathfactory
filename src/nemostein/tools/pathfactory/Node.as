@@ -51,12 +51,12 @@ package nemostein.tools.pathfactory
 			if (_anchor)
 			{
 				graphics.beginFill(0xaa00aa);
-				graphics.drawCircle(0, 0, 2);
+				graphics.drawCircle(0, 0, 3);
 			}
 			else
 			{
 				graphics.beginFill(0xaa0000);
-				graphics.drawCircle(0, 0, 3);
+				graphics.drawCircle(0, 0, 4);
 			}
 			
 			graphics.endFill();

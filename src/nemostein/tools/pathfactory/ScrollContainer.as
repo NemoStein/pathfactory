@@ -4,6 +4,9 @@ package nemostein.tools.pathfactory
 
 	public class ScrollContainer extends Sprite 
 	{
-		// Empty
+		public function ScrollContainer() 
+		{
+			mouseEnabled = false;
+		}
 	}
 }

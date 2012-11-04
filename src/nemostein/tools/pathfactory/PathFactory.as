@@ -7,6 +7,7 @@ package nemostein.tools.pathfactory
 	import flash.display.LoaderInfo;
 	import flash.display.Shape;
 	import flash.display.Sprite;
+	import flash.display.Stage;
 	import flash.display.StageAlign;
 	import flash.display.StageDisplayState;
 	import flash.display.StageScaleMode;
@@ -17,9 +18,13 @@ package nemostein.tools.pathfactory
 	import flash.filesystem.File;
 	import flash.geom.Point;
 	import flash.net.FileFilter;
+	import flash.text.TextField;
+	import flash.text.TextFieldAutoSize;
 	import flash.ui.Keyboard;
+	import flash.ui.Mouse;
 	import flash.utils.ByteArray;
 	import flash.utils.Dictionary;
+	import nemostein.tools.pathfactory.assets.AssetCursor;
 	
 	public class PathFactory extends Sprite
 	{
@@ -40,6 +45,8 @@ package nemostein.tools.pathfactory
 		private var _file:File;
 		private var _keys:Array;
 		private var _backgroundPath:String;
+		private var _cursor:AssetCursor;
+		private var _nodes:Vector.<Node>;
 		
 		public function PathFactory()
 		{
@@ -52,9 +59,14 @@ package nemostein.tools.pathfactory
 			stage.align = StageAlign.TOP_LEFT;
 			stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE;
 			
+			Mouse.hide();
+			
+			_cursor = new AssetCursor();
+			addChild(_cursor);
+			
 			_keys = [];
 			
-			newFile(true);
+			newFile(true, true);
 			
 			stage.addEventListener(Event.ENTER_FRAME, onStageEnterFrame);
 			stage.addEventListener(MouseEvent.MOUSE_DOWN, onStageMouseDown);
@@ -65,14 +77,10 @@ package nemostein.tools.pathfactory
 			stage.addEventListener(KeyboardEvent.KEY_UP, onStageKeyUp);
 		}
 		
-		private function newFile(ignoreBackground:Boolean = false):void 
+		private function newFile(ignoreBackground:Boolean = false, addHits:Boolean = false):void 
 		{
-			if (!ignoreBackground)
-			{
-				loadBackground();
-			}
-			
 			_segments = new Dictionary(true);
+			_nodes = new Vector.<Node>();
 			
 			if(_scrollContainer)
 			{
@@ -80,7 +88,7 @@ package nemostein.tools.pathfactory
 			}
 			
 			_scrollContainer = new ScrollContainer();
-			addChild(_scrollContainer);
+			addChildAt(_scrollContainer, 0);
 			
 			_pathLayer = new Shape();
 			_scrollContainer.addChild(_pathLayer);
@@ -90,16 +98,45 @@ package nemostein.tools.pathfactory
 			
 			_nodesLayer = new Sprite();
 			_scrollContainer.addChild(_nodesLayer);
+			
+			if (!ignoreBackground)
+			{
+				loadBackground();
+			}
+			
+			if(addHits)
+			{
+				var textField:TextField = new TextField();
+				
+				textField.selectable = false;
+				textField.autoSize = TextFieldAutoSize.LEFT;
+				textField.x = 10;
+				textField.y = 10;
+				
+				textField.text = "Shortcuts:\n"
+				+ "CTRL+N - New File (will ask for background image, if none is provided (canceled), this hints will be displayed)\n"
+				+ "CTRL+L - Load File\n"
+				+ "CTRL+S - Save File\n"
+				+ "CTRL+C - Copy Paths (will copy the paths as text, ready to be used into, the clipboard)\n"
+				+ "CRTL+Q - Quit\n"
+				+ "CTRL+Left Click - Place Node / Resume Path\n"
+				+ "Left Click - Drag Node\n"
+				+ "Right Click - Delete Node\n"
+				+ "Space - Enter/Leaves Navigation Mode\n";
+				
+				_scrollContainer.addChild(textField);
+			}
 		}
 		
 		private function onNewFileSelect(event:Event):void 
 		{
-			_backgroundPath = _file.nativePath;
 			_file.load();
 		}
 		
 		private function onNewFileComplete(event:Event):void 
 		{
+			_backgroundPath = _file.nativePath;
+			
 			var loader:Loader = new Loader();
 			loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoaderComplete);
 			loader.loadBytes(_file.data);
@@ -114,6 +151,15 @@ package nemostein.tools.pathfactory
 		{
 			var mouseX:Number= stage.mouseX;
 			var mouseY:Number = stage.mouseY;
+			
+			if (stage.mouseLock)
+			{
+				mouseX = stage.stageWidth / 2;
+				mouseY = stage.stageHeight / 2;
+			}
+			
+			_cursor.x = mouseX;
+			_cursor.y = mouseY;
 			
 			for (var i:int = 0; i < _keys.length; ++i) 
 			{
@@ -136,11 +182,6 @@ package nemostein.tools.pathfactory
 						scrollOffset(5, 0);
 					}
 				}
-			}
-			
-			if (_keys[SPACE])
-			{
-				scrollOffset((mouseX / (stage.stageWidth / 2) - 1) * 50, (mouseY / (stage.stageHeight / 2) - 1) * 50);
 			}
 			
 			if (_draggingNode)
@@ -176,6 +217,14 @@ package nemostein.tools.pathfactory
 			{
 				dragNode(event.target as Node);
 			}
+			else if (stage.mouseLock)
+			{
+				var node:Node = hittingNode();
+				if (node)
+				{
+					dragNode(node);
+				}
+			}
 		}
 		
 		private function onStageMouseUp(event:MouseEvent):void
@@ -183,9 +232,16 @@ package nemostein.tools.pathfactory
 			var node:Node = _selectedNode;
 			releaseNode();
 			
-			if (event.target is ScrollContainer && (event.ctrlKey || _creatingSegment))
+			if (event.target is Stage && (event.ctrlKey || _creatingSegment))
 			{
-				node = createNode(event.localX, event.localY);
+				if (stage.mouseLock)
+				{
+					node = createNode(stage.stageWidth / 2 - _scrollContainer.x, stage.stageHeight / 2 - _scrollContainer.y);
+				}
+				else
+				{
+					node = createNode(event.stageX - _scrollContainer.x, event.stageY - _scrollContainer.y);
+				}
 			}
 			
 			if (node && (!node.tail || !node.head))
@@ -216,11 +272,48 @@ package nemostein.tools.pathfactory
 			{
 				destroyNode(event.target as Node);
 			}
+			else if (stage.mouseLock)
+			{
+				var node:Node = hittingNode();
+				if (node)
+				{
+					destroyNode(node);
+				}
+			}
+		}
+		
+		private function hittingNode():Node 
+		{
+			for each (var node:Node in _nodes) 
+			{
+				if (node.hitTestPoint(stage.stageWidth / 2, stage.stageHeight / 2))
+				{
+					return node;
+				}
+			}
+			
+			return null;
 		}
 		
 		private function onStageKeyDown(event:KeyboardEvent):void
 		{
-			if (event.ctrlKey)
+			if (event.keyCode == Keyboard.SPACE)
+			{
+				if(!stage.mouseLock)
+				{
+					if (stage.displayState == StageDisplayState.FULL_SCREEN_INTERACTIVE)
+					{
+						stage.mouseLock = true;
+						stage.addEventListener(MouseEvent.MOUSE_MOVE, onStageMouseMove);
+					}
+				}
+				else
+				{
+					stage.mouseLock = false;
+					stage.removeEventListener(MouseEvent.MOUSE_MOVE, onStageMouseMove);
+				}
+			}
+			else if (event.ctrlKey)
 			{
 				if (event.keyCode == Keyboard.C)
 				{
@@ -259,10 +352,6 @@ package nemostein.tools.pathfactory
 			{
 				_keys[RIGHT] = true;
 			}
-			else if (event.keyCode == Keyboard.SPACE)
-			{
-				_keys[SPACE] = true;
-			}
 			
 			event.preventDefault();
 		}
@@ -285,10 +374,11 @@ package nemostein.tools.pathfactory
 			{
 				_keys[RIGHT] = false;
 			}
-			else if (event.keyCode == Keyboard.SPACE)
-			{
-				_keys[SPACE] = false;
-			}
+		}
+		
+		private function onStageMouseMove(event:MouseEvent):void 
+		{
+			scrollOffset(event.movementX, event.movementY);
 		}
 		
 		private function scrollOffset(xOffset:Number, yOffset:Number):void 
@@ -304,6 +394,7 @@ package nemostein.tools.pathfactory
 			node.x = x;
 			node.y = y;
 			
+			_nodes.push(node);
 			_nodesLayer.addChild(node);
 			
 			return node;
@@ -311,6 +402,7 @@ package nemostein.tools.pathfactory
 		
 		private function destroyNode(node:Node):void
 		{
+			_nodes.splice(_nodes.indexOf(node), 1);
 			_nodesLayer.removeChild(node);
 			
 			if (node.anchor)
@@ -388,6 +480,7 @@ package nemostein.tools.pathfactory
 			{
 				var segment:Segment = new Segment(start, end);
 				
+				_nodes.push(segment.anchor);
 				_nodesLayer.addChild(segment.anchor);
 				
 				_segments[segment.anchor] = segment;
@@ -486,27 +579,18 @@ package nemostein.tools.pathfactory
 					
 					if (!start)
 					{
-						start = nodes[startID] = new Node();
-						
-						start.x = nodePoints[startID].x;
-						start.y = nodePoints[startID].y;
-						
-						_nodesLayer.addChild(start);
+						start = nodes[startID] = createNode(nodePoints[startID].x, nodePoints[startID].y);
 					}
 					
 					if (!end)
 					{
-						end = nodes[endID] = new Node();
-						
-						end.x = nodePoints[endID].x;
-						end.y = nodePoints[endID].y;
-						
-						_nodesLayer.addChild(end);
+						end = nodes[endID] = createNode(nodePoints[endID].x, nodePoints[endID].y);
 					}
 					
 					var segment:Segment = new Segment(start, end, anchorPoint);
 					_segments[segment.anchor] = segment;
 					
+					_nodes.push(segment.anchor);
 					_nodesLayer.addChild(segment.anchor);
 				}
 			}
@@ -570,12 +654,18 @@ package nemostein.tools.pathfactory
 			if (!path)
 			{
 				_file.addEventListener(Event.SELECT, onNewFileSelect);
+				_file.addEventListener(Event.CANCEL, onFileCancel);
 				_file.browse([new FileFilter("Image File", "*.png;*.jpg;*.jpeg"), new FileFilter("Any file", "*.*")]);
 			}
 			else
 			{
 				_file.load();
 			}
+		}
+		
+		private function onFileCancel(event:Event):void 
+		{
+			newFile(true, true);
 		}
 		
 		private function onFileIoError(event:IOErrorEvent):void 
