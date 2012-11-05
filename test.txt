@@ -1,6 +1,0 @@
-/air
-/assets
-/bin
-/lib
-/obj
-/.gitignore
