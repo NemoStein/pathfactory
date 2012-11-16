@@ -524,6 +524,8 @@ package nemostein.tools.pathfactory
 			var data:String = "";
 			var paths:Vector.<Segment> = extractPaths();
 			
+			data += "var paths:Vector.<Path> = new Vector.<Path>();\r\n";
+			
 			for (var i:int = 0; i < paths.length; ++i)
 			{
 				data += "\r\nvar path" + i + ":Path = new Path();\r\n";
@@ -536,6 +538,8 @@ package nemostein.tools.pathfactory
 					data += currentSegment.end.x + ", " + currentSegment.end.y + ", ";
 					data += currentSegment.anchor.x + ", " + currentSegment.anchor.y + ");\r\n";
 				} while (currentSegment = currentSegment.end.head);
+				
+				data += "paths.push(path" + i + ");\r\n";
 			}
 			
 			Clipboard.generalClipboard.clear();

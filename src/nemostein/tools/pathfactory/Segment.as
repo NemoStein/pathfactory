@@ -67,7 +67,7 @@ package nemostein.tools.pathfactory
 			
 			for (var i:Number = 0; i < 1; i += 0.1) 
 			{
-				var vector3d:Array = bezier.interpolateObject(i);
+				var vector3d:Array = bezier.interpolate(i);
 				graphics.lineTo(vector3d[0], vector3d[1]);
 			}
 			
