@@ -1,15 +1,10 @@
 @echo off
 if not exist %CERT_FILE% goto certificate
 
-:: AIR output
-if not exist %AIR_PATH% md %AIR_PATH%
-set OUTPUT=%AIR_PATH%\%AIR_NAME%%AIR_TARGET%.air
-
 :: Package
 echo.
 echo Packaging %AIR_NAME%%AIR_TARGET%.air using certificate %CERT_FILE%...
-::call adt -package %OPTIONS% %SIGNING_OPTIONS% %OUTPUT% %APP_XML% %FILE_OR_DIR%
-call adt -package %SIGNING_OPTIONS% -target bundle %AIR_NAME%_standalone %APP_XML% %FILE_OR_DIR%
+call adt -package %OPTIONS% %SIGNING_OPTIONS% -target %AIR_TARGET% %OUTPUT% %APP_XML% %FILE_OR_DIR%
 if errorlevel 1 goto failed
 goto end
 

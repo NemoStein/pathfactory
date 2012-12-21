@@ -1,0 +1,10 @@
+-cp src
+-lib air3
+-swf D:/Workspaces/Actionscript3.0/PathFactory/bin/PathFactory.swf
+-swf-header 900:600:60:FFFFFF
+-swf-version 11.4
+-swf-lib D:/Workspaces/Actionscript3.0/PathFactory/lib/library.swf
+-main Main
+-debug
+--no-inline
+-D fdb
