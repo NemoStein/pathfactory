@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<application xmlns="http://ns.adobe.com/air/application/3.4">
+<application xmlns="http://ns.adobe.com/air/application/3.7">
   <id>PathFactory</id>
-  <versionNumber>0.9</versionNumber>
+  <versionNumber>1.0</versionNumber>
   <filename>PathFactory</filename>
   <name>PathFactory</name>
   <initialWindow>
@@ -18,6 +18,7 @@
 	More options:
 	http://livedocs.adobe.com/flex/3/html/File_formats_1.html#1043413
 	-->
+  <supportedProfiles>desktop extendedDesktop</supportedProfiles>
   <icon>
     <image16x16>icons/PathFactory16.png</image16x16>
     <image32x32>icons/PathFactory32.png</image32x32>
