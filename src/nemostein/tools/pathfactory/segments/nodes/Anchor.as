@@ -3,6 +3,7 @@ package nemostein.tools.pathfactory.segments.nodes
 	
 	public class Anchor extends Node
 	{
+		public var tesion:Number;
 		
 		public function Anchor()
 		{

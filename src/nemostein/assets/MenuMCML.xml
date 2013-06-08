@@ -1,0 +1,47 @@
+<comps>
+	<Panel id="menuPanel" height="40">
+		<HBox x="10" y="10">
+			<PushButton label="New" event="click: onNewClick"/>
+			<PushButton label="Load" event="click: onLoadClick"/>
+			<PushButton label="Save" event="click: onSaveClick"/>	
+			<PushButton id="helpButton" label="Help" event="click: onHelpClick"/>
+		</HBox>
+	</Panel>
+	
+	<Panel id="dataPanel" width="200">
+		<VBox x="10" y="10">
+			<Window title="Node Data" width="180" height="130" draggable="false" hasMinimizeButton="true">
+				<HBox x="10" y="10">
+					<VBox alignment="right">
+						<Label text="Y:"/>
+						<Label text="Y:"/>
+						<Label text="Anchor:"/>
+						<Label text="Tension:"/>
+					</VBox>
+					
+					<VBox spacing="3">
+						<Text id="xText" width="117" height="20" />
+						<Text id="yText" width="117" height="20"/>
+						<Text id="anchorText" width="117" height="20"/>
+						<Text id="tensionText" width="117" height="20"/>
+					</VBox>
+				</HBox>
+			</Window>
+			
+			<Window title="Visibility" width="180" height="100" hasMinimizeButton="true" minimized="true" draggable="false">
+				<VBox x="10" y="10">
+					<CheckBox id="showBackgroundCheckBox" label="Background" selected="true" event="click: onCheckBoxClick"/>
+					<CheckBox id="showGuidesCheckBox" label="Guides" selected="true" event="click: onCheckBoxClick"/>
+					<CheckBox id="showNodesCheckBox" label="Nodes" selected="true" event="click: onCheckBoxClick"/>
+					<CheckBox id="showPathsCheckBox" label="Paths" selected="true" event="click: onCheckBoxClick"/>
+				</VBox>
+			</Window>
+		</VBox>
+	</Panel>
+	
+	<Window id="helpWindow" title="Help" hasCloseButton="true" event="close: onHelpWindowClose">
+		<VBox x="10" y="10">
+			<Text id="helpText"/>
+		</VBox>
+	</Window>
+</comps>

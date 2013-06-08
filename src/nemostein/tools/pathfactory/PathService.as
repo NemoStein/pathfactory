@@ -21,6 +21,7 @@ package nemostein.tools.pathfactory
 		
 		static public var factory:PathFactory;
 		static public var container:Sprite;
+		static public var ui:UI;
 		static public var nodeContainer:Sprite;
 		static public var guideContainer:Sprite;
 		static public var backgroundContainer:Sprite;
@@ -29,7 +30,7 @@ package nemostein.tools.pathfactory
 		static private var drawGuides:Boolean;
 		static private var drawPaths:Boolean;
 		
-		static public function setup(factory:PathFactory, container:Sprite):void
+		static public function setup(factory:PathFactory, container:Sprite, ui:UI):void
 		{
 			resultPoint = new Point();
 			
@@ -37,8 +38,9 @@ package nemostein.tools.pathfactory
 			drawPaths = true;
 			
 			backgroundPath = "";
-			PathService.container = container;
 			PathService.factory = factory;
+			PathService.container = container;
+			PathService.ui = ui;
 			
 			nodeContainer = new Sprite();
 			guideContainer = new Sprite();
@@ -124,6 +126,10 @@ package nemostein.tools.pathfactory
 		static public function draw():void
 		{
 			var graphics:Graphics = guideContainer.graphics;
+			var color1:Color = new Color();
+			var color2:Color = new Color();
+			var color3:Color = new Color();
+			var color4:Color = new Color();
 			
 			graphics.clear();
 			
@@ -139,43 +145,45 @@ package nemostein.tools.pathfactory
 					
 					if (drawPaths)
 					{
-						var colorArcA:Color = new Color(0x004400);
-						var colorArcB:Color = new Color(0x88ff88);
+						color1.argb = 0xff004400;
+						color2.argb = 0xff88ff88;
 						
 						graphics.moveTo(start.x, start.y);
 						
 						var i:Number = 0;
 						while ((i += 0.1) <= 1)
 						{
-							graphics.lineStyle(6, Color.blend(colorArcA, colorArcB, i).argb);
+							graphics.lineStyle(6, Color.blend(color1, color2, i, color4).argb);
 							bezierSegment.interpolate(i, resultPoint);
 							graphics.lineTo(resultPoint.x, resultPoint.y);
 						}
 					}
 					
+					var distanceAB:Number = Point.distance(start, anchor);
+					var distanceBC:Number = Point.distance(anchor, end);
+					var ratioAB:Number = distanceAB / (distanceAB + distanceBC) * 2;
+					var ratioBC:Number = 2 - ratioAB;
+					
+					segment.anchor.tesion = ratioAB - 1;
+					
 					if (drawGuides)
 					{
-						var colorTensionA:Color = new Color(0xff0000);
-						var colorTensionB:Color = new Color(0xffffff);
-						var colorTensionC:Color = new Color(0x0000ff);
-						
-						var distanceAB:Number = Point.distance(start, anchor);
-						var distanceBC:Number = Point.distance(anchor, end);
-						var ratioAB:Number = distanceAB / (distanceAB + distanceBC) * 2;
-						var ratioBC:Number = 2 - ratioAB;
+						color1.argb = 0xffff0000;
+						color2.argb = 0xffffffff;
+						color3.argb = 0xff0000ff;
 						
 						var blendA:uint;
 						var blendB:uint;
 						
 						if (ratioAB < 1)
 						{
-							blendA = Color.blend(colorTensionA, colorTensionB, ratioAB * 15 - 14).argb;
-							blendB = Color.blend(colorTensionB, colorTensionC, (ratioBC - 1) * 15).argb;
+							blendA = Color.blend(color1, color2, ratioAB * 15 - 14, color4).argb;
+							blendB = Color.blend(color2, color3, (ratioBC - 1) * 15, color4).argb;
 						}
 						else
 						{
-							blendA = Color.blend(colorTensionB, colorTensionC, (ratioAB - 1) * 15).argb;
-							blendB = Color.blend(colorTensionA, colorTensionB, ratioBC * 15 - 14).argb;
+							blendA = Color.blend(color2, color3, (ratioAB - 1) * 15, color4).argb;
+							blendB = Color.blend(color1, color2, ratioBC * 15 - 14, color4).argb;
 						}
 						
 						graphics.lineStyle(2, blendA, 1, true);
@@ -203,21 +211,25 @@ package nemostein.tools.pathfactory
 		static public function toggleBackground():void
 		{
 			backgroundContainer.visible = !backgroundContainer.visible;
+			ui.showBackgroundCheckBox.selected = backgroundContainer.visible;
 		}
 		
 		static public function toggleGuides():void
 		{
 			drawGuides = !drawGuides;
+			ui.showGuidesCheckBox.selected = drawGuides;
 		}
 		
 		static public function toggleNodes():void
 		{
 			nodeContainer.visible = !nodeContainer.visible;
+			ui.showNodesCheckBox.selected = nodeContainer.visible;
 		}
 		
 		static public function togglePaths():void
 		{
 			drawPaths = !drawPaths;
+			ui.showPathsCheckBox.selected = drawPaths;
 		}
 	}
 }

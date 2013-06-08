@@ -13,23 +13,21 @@ package nemostein.tools.pathfactory.filesystem
 	public class FileLoader
 	{
 		private var _file:File;
-		private var _onCancelOrFail:Function;
+		private var _onSuccess:Function;
 		
 		public function FileLoader()
 		{
 		
 		}
 		
-		public function startLoading(onCancelOrFail:Function):void
+		public function startLoading(onSuccess:Function):void
 		{
-			_onCancelOrFail = onCancelOrFail;
+			_onSuccess = onSuccess;
 			
 			_file = new File();
 			
 			_file.addEventListener(Event.SELECT, onFileSelect);
 			_file.addEventListener(Event.COMPLETE, onFileComplete);
-			_file.addEventListener(Event.CANCEL, onFileCancel);
-			_file.addEventListener(IOErrorEvent.IO_ERROR, onFileIoError);
 			_file.browse([new FileFilter("Paths File (*.xml)", "*.xml"), new FileFilter("Any file", "*.*")]);
 		}
 		
@@ -40,6 +38,11 @@ package nemostein.tools.pathfactory.filesystem
 		
 		private function onFileComplete(event:Event):void
 		{
+			if (_onSuccess != null)
+			{
+				_onSuccess();
+			}
+			
 			var xmlData:String = _file.data.readMultiByte(_file.data.bytesAvailable, "utf-8");
 			var pathsXML:XML = new XML(xmlData);
 			
@@ -99,22 +102,6 @@ package nemostein.tools.pathfactory.filesystem
 			}
 			
 			return null;
-		}
-		
-		private function onFileCancel(event:Event):void 
-		{
-			if (_onCancelOrFail != null)
-			{
-				_onCancelOrFail();
-			}
-		}
-		
-		private function onFileIoError(event:IOErrorEvent):void 
-		{
-			if (_onCancelOrFail != null)
-			{
-				_onCancelOrFail();
-			}
 		}
 	}
 }

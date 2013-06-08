@@ -12,13 +12,13 @@ package nemostein.tools.pathfactory.filesystem
 		private var _file:File;
 		private var _path:String;
 		private var _onComplete:Function;
-		private var _onCancelOrFail:Function;
+		private var _onSuccess:Function;
 		private var _loader:Loader;
 		
-		public function BackgroundLoader(onComplete:Function, onCancelOrFail:Function, path:String = null)
+		public function BackgroundLoader(onComplete:Function, onSuccess:Function, path:String = null)
 		{
 			_onComplete = onComplete;
-			_onCancelOrFail = onCancelOrFail;
+			_onSuccess = onSuccess;
 			_path = path;
 		}
 		
@@ -27,12 +27,10 @@ package nemostein.tools.pathfactory.filesystem
 			_file = new File(_path);
 			
 			_file.addEventListener(Event.COMPLETE, onFileComplete);
-			_file.addEventListener(IOErrorEvent.IO_ERROR, onFileIoError);
 			
 			if (_path == null || !_file.exists)
 			{
 				_file.addEventListener(Event.SELECT, onFileSelect);
-				_file.addEventListener(Event.CANCEL, onFileCancel);
 				_file.browse([new FileFilter("Image File", "*.png;*.jpg;*.jpeg"), new FileFilter("Any file", "*.*")]);
 			}
 			else
@@ -43,6 +41,11 @@ package nemostein.tools.pathfactory.filesystem
 		
 		private function onFileComplete(event:Event):void
 		{
+			if (_onSuccess != null)
+			{
+				_onSuccess();
+			}
+			
 			_loader = new Loader();
 			_loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoaderComplete);
 			_loader.loadBytes(_file.data);
@@ -56,22 +59,6 @@ package nemostein.tools.pathfactory.filesystem
 		private function onFileSelect(event:Event):void
 		{
 			_file.load();
-		}
-		
-		private function onFileIoError(event:IOErrorEvent):void
-		{
-			if (_onCancelOrFail != null)
-			{
-				_onCancelOrFail();
-			}
-		}
-		
-		private function onFileCancel(event:Event):void
-		{
-			if (_onCancelOrFail != null)
-			{
-				_onCancelOrFail();
-			}
 		}
 	}
 }

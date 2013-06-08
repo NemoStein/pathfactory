@@ -1,0 +1,1 @@
+Shortcuts:	CTRL+N - New File	CTRL+L - Load File	CTRL+S - Save File		B - Show/Hide Background	G - Show/Hide Guides	N - Show/Hide Nodes	P - Show/Hide Paths		W/A/S/D - Navigate	CTRL+Left Click - Place Node / Resume Path	Left Click (on node) - Drag Node	Left Click (on stage) - Navigate	Right Click - Delete Node	Right Click (creating node) - Cancel Creation
