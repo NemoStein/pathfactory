@@ -1,7 +1,6 @@
 package nemostein.tools.pathfactory
 {
 	import com.bit101.components.CheckBox;
-	import com.bit101.components.Label;
 	import com.bit101.components.Panel;
 	import com.bit101.components.PushButton;
 	import com.bit101.components.Text;
@@ -9,11 +8,15 @@ package nemostein.tools.pathfactory
 	import com.bit101.utils.MinimalConfigurator;
 	import flash.display.Sprite;
 	import flash.events.Event;
-	import nemostein.assets.HelpText;
-	import nemostein.assets.MenuMCML;
 	
 	public class UI extends Sprite
 	{
+		[Embed(source = "assets/HelpText.txt",mimeType="application/octet-stream")]
+		static private const HelpText:Class;
+		
+		[Embed(source = "assets/MenuMCML.xml",mimeType="application/octet-stream")]
+		static private const MenuMCML:Class;
+		
 		private var _pathFactory:PathFactory;
 		
 		public var menuPanel:Panel;

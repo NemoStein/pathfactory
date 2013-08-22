@@ -17,7 +17,7 @@ set APP_XML=application.xml
 
 :: Files to package
 set APP_DIR=bin
-set FILE_OR_DIR=-C %APP_DIR% .
+set FILE_OR_DIR=icons -C %APP_DIR% .
 
 :: Your application ID (must match <id> of Application descriptor)
 set APP_ID=PathFactory
