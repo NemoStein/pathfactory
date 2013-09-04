@@ -1,10 +1,10 @@
 package nemostein.tools.pathfactory.segments
 {
 	import flash.geom.Point;
-	import nemostein.bezier.QuadBezierSegment;
 	import nemostein.tools.pathfactory.PathService;
 	import nemostein.tools.pathfactory.segments.nodes.Anchor;
 	import nemostein.tools.pathfactory.segments.nodes.EndPoint;
+	import sourbit.library.bezier.QuadBezierSegment;
 	
 	public class Segment
 	{

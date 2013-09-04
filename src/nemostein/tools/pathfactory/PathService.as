@@ -1,17 +1,15 @@
 package nemostein.tools.pathfactory
 {
-	import flash.display.DisplayObject;
 	import flash.display.Graphics;
 	import flash.display.Sprite;
 	import flash.geom.Point;
-	import nemostein.bezier.QuadBezierSegment;
-	import nemostein.color.Color;
 	import nemostein.tools.pathfactory.filesystem.BackgroundData;
-	import nemostein.tools.pathfactory.filesystem.BackgroundLoader;
 	import nemostein.tools.pathfactory.PathFactory;
 	import nemostein.tools.pathfactory.segments.nodes.EndPoint;
 	import nemostein.tools.pathfactory.segments.nodes.Node;
 	import nemostein.tools.pathfactory.segments.Segment;
+	import sourbit.library.bezier.QuadBezierSegment;
+	import sourbit.library.color.Color;
 	
 	public class PathService
 	{
